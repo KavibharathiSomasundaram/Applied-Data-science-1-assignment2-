@@ -176,33 +176,33 @@ df = FilterCountryData(df)
 df = PreprocessData(df)
 
 # electricity cosumption trend is filtered
-edf = VariableFilter(df, 'EG.USE.ELEC.KH.PC')
+greendf = VariableFilter(df, 'EN.ATM.GHGT.KT.CE')
 
-edf['index'] = edf['index'].astype('int')
+greendf['index'] = greendf['index'].astype('int')
 # data is available from 1991 to 2014
-edf = edf[(edf['index'] > 1990) & (edf['index'] < 2015)]
-edf['index'] = pd.to_datetime(edf['index'], format='%Y')
+greendf = greendf[(greendf['index'] > 1990) & (greendf['index'] < 2015)]
+greendf['index'] = pd.to_datetime(greendf['index'], format='%Y')
 
-# line plot for electricity consumption
+# line plot for greenhouse emissions
 # line growth for various countries
 plt.figure(figsize=(8, 8), dpi=500)
-plt.plot(edf['index'], edf['China'], label='China')
-plt.plot(edf['index'], edf['Germany'], label='Germany')
-plt.plot(edf['index'], edf['France'], label='France')
-plt.plot(edf['index'], edf['UK'], label='UK')
-plt.plot(edf['index'], edf['India'], label='India')
-plt.plot(edf['index'], edf['Russia'], label='Russia')
-plt.plot(edf['index'], edf['US'], label='US')
+plt.plot(greendf['index'], greendf['Canada'], label='Canada')
+plt.plot(greendf['index'], greendf['Germany'], label='Germany')
+plt.plot(greendf['index'], greendf['France'], label='France')
+plt.plot(greendf['index'], greendf['UK'], label='UK')
+plt.plot(greendf['index'], greendf['Italy'], label='Italy')
+plt.plot(greendf['index'], greendf['Japan'], label='Japan')
+plt.plot(greendf['index'], greendf['US'], label='US')
 # set labels, title, legend and display them
 plt.xlabel('Years')
-plt.ylabel('kilo Watt hour per capita')
-plt.title('Electric power consumption between 1990 and 2014',
+plt.ylabel('kilo ton')
+plt.title('Total greenhouse gas emissions',
           fontweight="bold")
 plt.legend()
-plt.savefig('electricity.png')
+plt.savefig('GreenHouseEmissions.png')
 plt.show()
 
-# heatmap for Germany
+# heatmap for US
 hdf_Germany = HeatmapPreprocess(df, 'Germany')
 hdf_Germany.describe()
 
@@ -212,14 +212,14 @@ plt.title('Heatmap for Germany', fontweight="bold")
 plt.savefig('hmap_Germany.png')
 plt.show()
 
-# heatmap for Germany
-hdf_China = HeatmapPreprocess(df, 'China')
-hdf_China.describe()
+# heatmap for UK
+hdf_UK = HeatmapPreprocess(df, 'United Kingdom')
+hdf_UK.describe()
 
 plt.figure(dpi=500)
-PlotCorrMap(hdf_China)
-plt.title('Heatmap for China', fontweight="bold")
-plt.savefig('hmap_China.png')
+PlotCorrMap(hdf_UK)
+plt.title('Heatmap for UK', fontweight="bold")
+plt.savefig('hmap_UK.png')
 plt.show()
 
 
@@ -243,21 +243,21 @@ plt.savefig('CO2 Emission.png')
 plt.show()
 
 # pie chart for the population
-pop_df = VariableFilter(df, 'SP.POP.TOTL')
+pop_df = VariableFilter(df, 'ER.H2O.FWTL.K3')
 pop_df.rename(columns={'index': 'Year'}, inplace=True)
 pop_df["Year"] = pop_df['Year'].astype('int')
-pop_df = pop_df.loc[pop_df['Year'] == 2021]
+pop_df = pop_df.loc[pop_df['Year'] == 2019]
 pop_df.drop(['Year'], axis=1, inplace=True)
 pop_df.reset_index(drop=True, inplace=True)
 pop_df = pop_df.T
 pop_df.reset_index(inplace=True)
-pop_df.rename(columns={0: 'Total Population',
+pop_df.rename(columns={0: 'Freshwater withdrawals',
                        'index': 'Countries'},
               inplace=True)
 
 # display the graph
 plt.figure(dpi=500)
-plt.pie(pop_df['Total Population'], labels=pop_df['Countries'])
+plt.pie(pop_df['Freshwater withdrawals'], labels=pop_df['Countries'])
 plt.title('Population in the year 2021', fontweight="bold")
 plt.savefig('Population.png')
 plt.show()
