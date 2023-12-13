@@ -8,6 +8,7 @@ Created on Mon Dec 01 10:42:26 2023
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import stats as st
 
 def PlotCorrMap(df, size=10):
     """This function creates heatmap for the correlation matrix.
@@ -137,7 +138,7 @@ def ProcessCO2(df):
     This function processes the data for CO2 emission so that grouped bar
     graph can be produced.
     """
-    # five years average will be displaced in these years
+    # five years average will be displayed in these years
     years = [1994, 1999, 2004, 2009, 2014, 2019]
     columns_list = ['index', 'US', 'UK', 'France', 'Japan',
                  'Canada', 'Germany', 'Italy']
@@ -169,13 +170,13 @@ def ProcessCO2(df):
 
 # main code
 # Reads data from the world bank climate data
-df = pd.read_csv('API_19_DS2_en_csv_v2_4902199.csv', skiprows=4)
+df = pd.read_csv('API_19_DS2_en_csv_v2_6183479.csv', skiprows=4)
 
 # filters the data for the required countries
 df = FilterCountryData(df)
 df = PreprocessData(df)
 
-# electricity cosumption trend is filtered
+# greenhouse emission is filtered
 greendf = VariableFilter(df, 'EN.ATM.GHGT.KT.CE')
 
 greendf['index'] = greendf['index'].astype('int')
@@ -202,7 +203,7 @@ plt.legend()
 plt.savefig('GreenHouseEmissions.png')
 plt.show()
 
-# heatmap for US
+# heatmap for Germany
 hdf_Germany = HeatmapPreprocess(df, 'Germany')
 hdf_Germany.describe()
 
@@ -242,22 +243,47 @@ plt.legend()
 plt.savefig('CO2 Emission.png')
 plt.show()
 
-# pie chart for the population
-pop_df = VariableFilter(df, 'ER.H2O.FWTL.K3')
-pop_df.rename(columns={'index': 'Year'}, inplace=True)
-pop_df["Year"] = pop_df['Year'].astype('int')
-pop_df = pop_df.loc[pop_df['Year'] == 2019]
-pop_df.drop(['Year'], axis=1, inplace=True)
-pop_df.reset_index(drop=True, inplace=True)
-pop_df = pop_df.T
-pop_df.reset_index(inplace=True)
-pop_df.rename(columns={0: 'Freshwater withdrawals',
+# pie chart for the annual fresh water withdrawls
+fw_df = VariableFilter(df, 'ER.H2O.FWTL.K3')
+fw_df.rename(columns={'index': 'Year'}, inplace=True)
+fw_df["Year"] = fw_df['Year'].astype('int')
+fw_df = fw_df.loc[fw_df['Year'] == 2019]
+fw_df.drop(['Year'], axis=1, inplace=True)
+fw_df.reset_index(drop=True, inplace=True)
+fw_df = fw_df.T
+fw_df.reset_index(inplace=True)
+fw_df.rename(columns={0: 'Freshwater withdrawals',
                        'index': 'Countries'},
               inplace=True)
 
 # display the graph
 plt.figure(dpi=500)
-plt.pie(pop_df['Freshwater withdrawals'], labels=pop_df['Countries'])
-plt.title('Population in the year 2021', fontweight="bold")
-plt.savefig('Population.png')
+plt.pie(fw_df['Freshwater withdrawals'], labels=fw_df['Countries'])
+plt.title('Annual freshwater withdrawals in 2019', fontweight="bold")
+plt.savefig('Freshwater.png')
 plt.show()
+
+# skewness and Kurtosis
+coun_df = VariableFilter(df, 'EG.USE.ELEC.KH.PC')
+UK_df = coun_df[['UK']]
+index = coun_df[['index']]
+    
+#removes the last eight data points as they does not have data
+uk_df = UK_df[1:-8]
+index = index[1:-8]
+
+plt.figure(figsize=(8, 8), dpi=500)
+plt.plot(index, uk_df)
+plt.xlabel('Years')
+plt.ylabel('Kilo Watt Hour')
+plt.title('Electric power consumption per capita for the UK',
+          fontweight="bold")
+plt.legend()
+plt.savefig('ElectricPowerConsumption.png')
+plt.show()
+
+# Skew for electricity per capita consumption for the UK
+st.skew(uk_df)
+
+# Kurtosis for electricity per capita consumption for the UK
+st.kurtosis(uk_df)
